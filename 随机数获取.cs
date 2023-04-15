@@ -7,7 +7,7 @@ namespace paramLesson
 {
     internal class Program
     {
-        static void WriteRandomArr(int Max)//重载，如果挂载了数组，将把随机结果填入其中
+        static void WriteRandomArr(int Max)//只填入随机数上限即可打印
         {
             Random rnd = new Random();
             int rndMax = Max + 1;
