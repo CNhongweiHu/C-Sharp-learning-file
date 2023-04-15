@@ -28,7 +28,7 @@ namespace paramLesson
                 Console.Write(arr[i] + " ");
             }
         }
-        static int[] WriteRandomArr(int[]arr ,int ranMax)
+        static void WriteRandomArr(out int[]arr ,int ranMax)//重载，如果挂载了数组，将把随机结果填入其中
         {
             Random rnd = new Random();
             int rndMax = ranMax + 1;
@@ -49,7 +49,6 @@ namespace paramLesson
                 arr[i] = rndArr;
                 Console.Write(arr[i] + " ");
             }
-            return arr;
         }
         static void Main(string[] args)
         {
