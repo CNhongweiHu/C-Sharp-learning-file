@@ -7,6 +7,25 @@ namespace paramLesson
 {
     internal class Program
     {
+        static void Main(string[] args)
+        {
+            Console.CursorVisible = false;
+            int[] arr;
+            #region 仅上限使用法
+            WriteRandomArr(10);
+            #endregion
+
+            #region 重载使用法
+            WriteRandomArr(out arr, 10);
+            Console.WriteLine();
+            for (int i = 0; i < arr.Length; ++i)//如果挂载了数组，那么可以选择手动打印
+            {
+                Console.Write(arr[i] + " ");
+            }
+            #endregion
+        }
+
+
         static void WriteRandomArr(int Max)//只填入随机数上限即可打印
         {
             Random rnd = new Random();
@@ -50,19 +69,6 @@ namespace paramLesson
                 arr[i] = rndArr;
                 Console.Write(arr[i] + " ");
             }
-        }
-        static void Main(string[] args)
-        {
-            Console.CursorVisible = false;
-            int[] arr;
-            WriteRandomArr(out arr, 10);
-            Console.WriteLine();
-
-            for (int i = 0; i < arr.Length; ++i)//如果挂载了数组，那么可以再打印一次
-            {
-                Console.Write(arr[i] + " ");
-            }
-
         }
     }
 }
