@@ -1,4 +1,4 @@
-﻿using paramLesson;
+using paramLesson;
 using System;
 using System.Data;
 using System.Runtime.Intrinsics.X86;
@@ -7,6 +7,28 @@ namespace paramLesson
 {
     internal class Program
     {
+        //*****************************************************************
+        //*****************************************************************
+        #region 冒泡排序核心逻辑
+        static void BubblingSort(int[] arr)
+        {
+            for (int Sort = 0; Sort < arr.Length; ++Sort)
+            {
+                for (int i = 0; i < arr.Length; ++i)
+                {
+                    if (i < arr.Length - 1 && arr[i] > arr[i + 1])
+                    {
+                        int temp = arr[i];
+                        arr[i] = arr[i + 1];
+                        arr[i + 1] = temp;
+                        SortVisualizationSystem(arr);//调用可视化模块
+                    }
+                }
+            }
+        }
+        #endregion
+        //*****************************************************************
+        //*****************************************************************
         static void Main(string[] args)
         {
             Console.CursorVisible = false;
@@ -22,12 +44,15 @@ namespace paramLesson
             }
             #endregion
 
-            BubblingSort(arr);
+            BubblingSort(arr);//调用冒泡排序
+
+            #region 打印随机前数据
             Console.WriteLine("\n本次参与排序的随机数是:");
             for (int i = 0; i < arr.Length; ++i)//如果挂载了数组，那么可以选择手动打印
             {
                 Console.Write(storage[i] + " ");
             }
+            #endregion
         }
         static void WriteRandomArr(out int[]arr ,int Max)//重载，如果挂载了数组，将把随机结果填入其中
         {
@@ -50,34 +75,20 @@ namespace paramLesson
                 arr[i] = rndArr;
             }
         }
-        static void BubblingSort(int[] arr)
+        static void SortVisualizationSystem(int[]arr)
         {
-            for (int Sort = 0; Sort < arr.Length; ++Sort)
+            #region 打印排序情况
+            Console.SetCursorPosition(0, 0);
+            for (int visualization = 0; visualization < arr.Length; ++visualization)
             {
-                for (int i = 0; i < arr.Length; ++i)
+                if (arr[visualization] == visualization + 1)
                 {
-                    if (i < arr.Length - 1 && arr[i] > arr[i + 1])
-                    {
-                        int temp = arr[i];
-                        arr[i] = arr[i + 1];
-                        arr[i + 1] = temp;
-                        //时间延迟
-                        Console.SetCursorPosition(0, 0);
-
-                        #region 打印排序情况
-                        for (int visualization = 0; visualization < arr.Length; ++visualization)
-                        {
-                            if (arr[visualization] == visualization + 1)
-                            {
-                                Console.ForegroundColor = ConsoleColor.Green;
-                            }
-                            Console.Write(" {0} ", arr[visualization]);
-                            Console.ForegroundColor = ConsoleColor.White;
-                        }
-                        #endregion
-                    }
+                    Console.ForegroundColor = ConsoleColor.Green;
                 }
+                Console.Write(" {0} ", arr[visualization]);
+                Console.ForegroundColor = ConsoleColor.White;
             }
+            #endregion
         }
     }
 }
