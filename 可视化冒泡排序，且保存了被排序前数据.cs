@@ -84,15 +84,15 @@ namespace paramLesson
             Console.SetCursorPosition(0, 0);
             for (int visualization = 0; visualization < arr.Length; ++visualization)
             {
+                Console.ForegroundColor = ConsoleColor.Red;
                 if (arr[visualization] == visualization + 1)
                 {
                     Console.ForegroundColor = ConsoleColor.Green;
                 }
                 Console.Write(" {0} ", arr[visualization]);
-                Console.ForegroundColor = ConsoleColor.Red;
             }
-            #endregion
             Console.ForegroundColor= ConsoleColor.White;
+            #endregion
         }
     }
 }
