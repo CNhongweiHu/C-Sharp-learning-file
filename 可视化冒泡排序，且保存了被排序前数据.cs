@@ -14,8 +14,10 @@ namespace paramLesson
         {
             for (int Sort = 0; Sort < arr.Length; ++Sort)
             {
+                //bool isSort = false;//每次循环开始时，进行记录是否有循环 特殊情景下可以用于优化
                 for (int i = 0; i < arr.Length; ++i)
                 {
+                    //isSort = true;//如果本轮进行了循环，则记录有
                     if (i < arr.Length - 1 && arr[i] > arr[i + 1])
                     {
                         int temp = arr[i];
@@ -24,6 +26,7 @@ namespace paramLesson
                         SortVisualizationSystem(arr);//调用可视化模块
                     }
                 }
+                //if (!isSort) { break; }//出现了无需循环的情况，则直接结束程序
             }
         }
         #endregion
@@ -34,7 +37,7 @@ namespace paramLesson
             Console.CursorVisible = false;
             int[] arr;
             int[] storage;
-            WriteRandomArr(out arr, 100);
+            WriteRandomArr(out arr, 200);
 
             #region 储存随机结果
             storage = new int[arr.Length];
@@ -86,9 +89,10 @@ namespace paramLesson
                     Console.ForegroundColor = ConsoleColor.Green;
                 }
                 Console.Write(" {0} ", arr[visualization]);
-                Console.ForegroundColor = ConsoleColor.White;
+                Console.ForegroundColor = ConsoleColor.Red;
             }
             #endregion
+            Console.ForegroundColor= ConsoleColor.White;
         }
     }
 }
