@@ -1,4 +1,4 @@
-﻿using paramLesson;
+using paramLesson;
 using System;
 using System.Data;
 using System.Runtime.Intrinsics.X86;
@@ -59,7 +59,7 @@ namespace paramLesson
             #endregion
             //*****************************************************************
             //*****************************************************************
-            BubblingSort(arr, true);
+            BubblingSort(arr, false);
             //调用冒泡排序，true为正序，false倒序
             //*****************************************************************
             //*****************************************************************
@@ -72,7 +72,7 @@ namespace paramLesson
             }
             #endregion
         }
-        static void WriteRandomArr(out int[] arr, int Max)//重载，如果挂载了数组，将把随机结果填入其中
+        static void WriteRandomArr(out int[] arr, int Max)//将随机结果填入其中
         {
             Random rnd = new Random();
             int rndMax = Max + 1;
