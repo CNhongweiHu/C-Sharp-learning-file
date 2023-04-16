@@ -1,4 +1,4 @@
-﻿using paramLesson;
+using paramLesson;
 using System;
 using System.Data;
 using System.Runtime.Intrinsics.X86;
@@ -72,6 +72,7 @@ namespace paramLesson
                 Console.Write(storage[i] + " ");
             }
             #endregion
+            Console.WriteLine();
             #region 打印随机后数据
             Console.WriteLine("\n本次排序的结果是:");
             Console.ForegroundColor = ConsoleColor.Green;
