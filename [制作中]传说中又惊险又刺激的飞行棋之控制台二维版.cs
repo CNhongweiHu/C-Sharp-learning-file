@@ -46,12 +46,12 @@ namespace LessonMai//传说中又惊险又刺激的飞行棋之控制台二维�
     {
         public static int GetWindowsHeight()//高度接口
         {
-            int Height = 24;
+            int Height = 48;
             return Height;
         }
         public static int GetWindowsWidth()//宽度接口
         {
-            int Width = 80;
+            int Width = 160;
             return Width;
         }
         public static void SetWindows()//默认调用接口并设置
@@ -101,10 +101,18 @@ namespace LessonMai//传说中又惊险又刺激的飞行棋之控制台二维�
             PrintingRules();
             int[] LevelData = FightMap(true);
             int playerProgress = 0;
-            int[] playerCoordinate = CoordinateSystemConversion(playerProgress);
-            Console.SetCursorPosition(playerCoordinate[0], playerCoordinate[1]);
-            WriteLineColorOnce("★", false);
-            Console.ReadKey(true);
+            int TransferParameters = playerProgress == 0 ? 0 : playerProgress * 7;
+            while (true)
+            {
+                int[] playerCoordinate = CoordinateSystemConversion(TransferParameters);
+                Console.SetCursorPosition(playerCoordinate[0], playerCoordinate[1]);
+                WriteLineColorOnce("★", false);
+                Console.ReadKey(true);
+                Console.SetCursorPosition(playerCoordinate[0], playerCoordinate[1]);
+                Console.Write("□");
+                ++playerProgress;
+                TransferParameters = playerProgress == 0 ? 0 : playerProgress * 7;
+            }
         }
 
         //—————— ฅ՞• •՞ฅ ——————华丽分割线—————— ฅ՞• •՞ฅ ——————华丽分割线—————— ฅ՞• •՞ฅ ——————华丽分割线
@@ -259,9 +267,9 @@ namespace LessonMai//传说中又惊险又刺激的飞行棋之控制台二维�
             {
                 if (PrintingWidth > 4 && PrintingWidth < Windows.GetWindowsWidth() - 6)
                 {
-                    LineWidth++;
                     for (int PrintingHeight = 0; PrintingHeight < Windows.GetWindowsHeight() - Windows.GetWindowsHeight() / 3; ++PrintingHeight)
                     {
+                        LineWidth++;
                         if (PrintingHeight % 4 == 0 && PrintingHeight != 0 && PrintingWidth % 2 == 0)
                         {
                             Console.SetCursorPosition(PrintingWidth, PrintingHeight);
@@ -300,7 +308,7 @@ namespace LessonMai//传说中又惊险又刺激的飞行棋之控制台二维�
                                     WindowCoordinate[1] = PrintingHeight;
                                     return WindowCoordinate;
                                 }
-                                ++record;//遍历地图，只要行径的步数相同，坐标则是相同的
+                                ++record;//遍历地图，只要行径的步数相同，坐标则是相同的，但是由于印刷问题，我们将会对数据进行调整
                             }
                         }
                     }
@@ -336,7 +344,7 @@ namespace LessonMai//传说中又惊险又刺激的飞行棋之控制台二维�
             }
             for (int i = 0; i < AiRules.Length; ++i)
             {
-                Console.SetCursorPosition(Windows.GetWindowsWidth() / 2, Windows.GetWindowsHeight() - (Windows.GetWindowsHeight() / 3) + 1 + i);
+                Console.SetCursorPosition(Windows.GetWindowsWidth() / 4, Windows.GetWindowsHeight() - (Windows.GetWindowsHeight() / 3) + 1 + i);
                 //2是因为字符占两格，加1是避免覆盖到了划分格子的方块，加i是每次+1行打印
                 Console.Write(AiRules[i]);
             }
