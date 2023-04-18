@@ -46,12 +46,12 @@ namespace LessonMai//传说中又惊险又刺激的飞行棋之控制台二维�
     {
         public static int GetWindowsHeight()//高度接口
         {
-            int Height = 48;
+            const int Height = 48;
             return Height;
         }
         public static int GetWindowsWidth()//宽度接口
         {
-            int Width = 160;
+            const int Width = 160;
             return Width;
         }
         public static void SetWindows()//默认调用接口并设置
@@ -99,19 +99,17 @@ namespace LessonMai//传说中又惊险又刺激的飞行棋之控制台二维�
             Console.Clear();
             PrintingMap();//印刷场景
             PrintingRules();
-            int[] LevelData = FightMap(true);
-            int playerProgress = 0;
-            int TransferParameters = playerProgress == 0 ? 0 : playerProgress * 7;
+            int LevelData = FightMap(true);
+            int Progress = 0;
             while (true)
             {
-                int[] playerCoordinate = CoordinateSystemConversion(TransferParameters);
-                Console.SetCursorPosition(playerCoordinate[0], playerCoordinate[1]);
+                int[] printCoordinates = CoordinateSystemConversion(Progress);
+                Console.SetCursorPosition(printCoordinates[0], printCoordinates[1]);
                 WriteLineColorOnce("★", false);
-                Console.ReadKey(true);
-                Console.SetCursorPosition(playerCoordinate[0], playerCoordinate[1]);
+                Console.ReadLine();
+                Console.SetCursorPosition(printCoordinates[0], printCoordinates[1]);
                 Console.Write("□");
-                ++playerProgress;
-                TransferParameters = playerProgress == 0 ? 0 : playerProgress * 7;
+                ++Progress;
             }
         }
 
@@ -243,12 +241,15 @@ namespace LessonMai//传说中又惊险又刺激的飞行棋之控制台二维�
         {
             for (int Printing = 0; Printing < Windows.GetWindowsWidth() - 1; ++Printing)
             {
-                Console.SetCursorPosition(Printing, 0);
-                Console.Write("■");
-                Console.SetCursorPosition(Printing, Windows.GetWindowsHeight() - 1);//减1是因为打印是从第0行开始算第1行，如果不减一会溢出崩溃
-                Console.Write("■");
-                Console.SetCursorPosition(Printing, Windows.GetWindowsHeight() - (Windows.GetWindowsHeight() / 3));//除以三分之一，印刷场景
-                Console.Write("■");
+                if (Printing % 2 == 0)
+                {
+                    Console.SetCursorPosition(Printing, 0);
+                    Console.Write("■");
+                    Console.SetCursorPosition(Printing, Windows.GetWindowsHeight() - 1);//减1是因为打印是从第0行开始算第1行，如果不减一会溢出崩溃
+                    Console.Write("■");
+                    Console.SetCursorPosition(Printing, Windows.GetWindowsHeight() - (Windows.GetWindowsHeight() / 3));//除以三分之一，印刷场景
+                    Console.Write("■");
+                }
                 if (Printing < Windows.GetWindowsHeight())
                 {
                     Console.SetCursorPosition(0, Printing);
@@ -259,61 +260,130 @@ namespace LessonMai//传说中又惊险又刺激的飞行棋之控制台二维�
             }
         }
         //—————— ฅ՞• •՞ฅ ——————华丽分割线—————— ฅ՞• •՞ฅ ——————华丽分割线—————— ฅ՞• •՞ฅ ——————华丽分割线
-        static int[] FightMap(bool firstPrint)//重载，输入布尔值即是初次打印战斗地图，会记录关卡的进度，关卡坐标系
+        static int FightMap(bool firstPrint)//重载，true即是初次打印战斗地图，会记录关卡的进度，关卡坐标系;false不会记录，但是会更新游戏内容
         {
             int record = 0;
-            int LineWidth = 0;
-            for (int PrintingWidth = 0; PrintingWidth < Windows.GetWindowsWidth() - 1; ++PrintingWidth)
+            int PrintingWidth = 0;
+            int PrintingHeight = 2;
+            bool continuousPrinting = true;
+            while (continuousPrinting)
             {
-                if (PrintingWidth > 4 && PrintingWidth < Windows.GetWindowsWidth() - 6)
+                #region 是否达到印刷页面上限？
+                if (PrintingHeight > Windows.GetWindowsHeight() - (Windows.GetWindowsHeight() / 3) - 7)
                 {
-                    for (int PrintingHeight = 0; PrintingHeight < Windows.GetWindowsHeight() - Windows.GetWindowsHeight() / 3; ++PrintingHeight)
+                    continuousPrinting = false;
+                }
+                #endregion
+                ++PrintingHeight;
+                #region 打印顺行的逻辑
+                for (PrintingWidth = 6; PrintingWidth < Windows.GetWindowsWidth()-6; PrintingWidth++)
+                {
+                    if (PrintingWidth%2 == 0)
                     {
-                        LineWidth++;
-                        if (PrintingHeight % 4 == 0 && PrintingHeight != 0 && PrintingWidth % 2 == 0)
-                        {
-                            Console.SetCursorPosition(PrintingWidth, PrintingHeight);
-                            Console.WriteLine("□");
-                            ++record;
-                        }
+                        Console.SetCursorPosition(PrintingWidth, PrintingHeight);
+                        Console.Write("□");
+                        record++;
                     }
                 }
+                #endregion
+                #region 打印右侧衔接
+                ++PrintingHeight;
+                Console.SetCursorPosition(PrintingWidth - 2, PrintingHeight);
+                Console.Write("□");
+                record++;
+                #endregion
+                ++PrintingHeight;
+                #region 打印逆行的逻辑
+                for (; PrintingWidth > 6; PrintingWidth--)
+                {
+                    if (PrintingWidth % 2 == 0)
+                    {
+                        Console.SetCursorPosition(PrintingWidth - 2, PrintingHeight);
+                        Console.Write("□");
+                        record++;
+                    }
+                }
+                #endregion
+                #region 打印左侧衔接
+                ++PrintingHeight;
+                Console.SetCursorPosition(PrintingWidth, PrintingHeight);
+                Console.Write("□");
+                record++;
+                #endregion
             }
-            int[] LevelData = new int[2];//关卡坐标系
-            LevelData[(int)E_LevelData.Width] = LineWidth;//关卡的宽度
-            LevelData[(int)E_LevelData.Height] = record / LineWidth;//关卡的高度
-            return LevelData;//到处宽、高后，两个数据相乘，即是游戏的地图的路径上限
+            int LevelData = record;//关卡的进度上限
+            return LevelData;//关卡的进度上限
         }
         //—————— ฅ՞• •՞ฅ ——————华丽分割线—————— ฅ՞• •՞ฅ ——————华丽分割线—————— ฅ՞• •՞ฅ ——————华丽分割线
-        static int[] CoordinateSystemConversion(int progress)//输入关卡进度，输出显示坐标
+        static int[] CoordinateSystemConversion(int recordProgress)//输入关卡进度，输出显示坐标
         {
+            int[] printCoordinates = new int[2];
             int record = 0;
-            int LineWidth = 0;
-            int[] LevelData = new int[2];
-            int[] WindowCoordinate = new int[2];
-            while (true)
+            int PrintingWidth = 0;
+            int PrintingHeight = 2;
+            bool continuousPrinting = true;
+            while (continuousPrinting)
             {
-                for (int PrintingWidth = 0; PrintingWidth < Windows.GetWindowsWidth() - 1; ++PrintingWidth)
+                #region 是否达到印刷页面上限？
+                if (PrintingHeight > Windows.GetWindowsHeight() - (Windows.GetWindowsHeight() / 3) - 7)
                 {
-                    if (PrintingWidth > 4 && PrintingWidth < Windows.GetWindowsWidth() - 6)
+                    continuousPrinting = false;
+                }
+                #endregion
+                ++PrintingHeight;
+                #region 打印顺行的逻辑
+                for (PrintingWidth = 6; PrintingWidth < Windows.GetWindowsWidth() - 6; PrintingWidth++)
+                {
+                    if (PrintingWidth % 2 == 0)
                     {
-                        LineWidth++;
-                        for (int PrintingHeight = 0; PrintingHeight < Windows.GetWindowsHeight() - Windows.GetWindowsHeight() / 3; ++PrintingHeight)
+                        if (recordProgress == record)
                         {
-                            if (PrintingHeight % 4 == 0 && PrintingHeight != 0 && PrintingWidth % 2 == 0)
-                            {
-                                if (progress == record)
-                                {
-                                    WindowCoordinate[0] = PrintingWidth;
-                                    WindowCoordinate[1] = PrintingHeight;
-                                    return WindowCoordinate;
-                                }
-                                ++record;//遍历地图，只要行径的步数相同，坐标则是相同的，但是由于印刷问题，我们将会对数据进行调整
-                            }
+                            printCoordinates[0] = PrintingWidth;
+                            printCoordinates[1] = PrintingHeight;
+                            return printCoordinates;
                         }
+                        record++;
                     }
                 }
+                #endregion
+                #region 打印右侧衔接
+                ++PrintingHeight;
+                if (recordProgress == record)
+                {
+                    printCoordinates[0] = PrintingWidth - 2;
+                    printCoordinates[1] = PrintingHeight;
+                    return printCoordinates;
+                }
+                record++;
+                #endregion
+                ++PrintingHeight;
+                #region 打印逆行的逻辑
+                for (; PrintingWidth > 6; PrintingWidth--)
+                {
+                    if (PrintingWidth % 2 == 0)
+                    {
+                        if (recordProgress == record)
+                        {
+                            printCoordinates[0] = PrintingWidth - 2;
+                            printCoordinates[1] = PrintingHeight;
+                            return printCoordinates;
+                        }
+                        record++;
+                    }
+                }
+                #endregion
+                #region 打印左侧衔接
+                ++PrintingHeight;
+                if (recordProgress == record)
+                {
+                    printCoordinates[0] = PrintingWidth;
+                    printCoordinates[1] = PrintingHeight;
+                    return printCoordinates;
+                }
+                record++;
+                #endregion
             }
+            return printCoordinates;
         }
         //—————— ฅ՞• •՞ฅ ——————华丽分割线—————— ฅ՞• •՞ฅ ——————华丽分割线—————— ฅ՞• •՞ฅ ——————华丽分割线
         static void PrintingRules()//印刷游戏规则
