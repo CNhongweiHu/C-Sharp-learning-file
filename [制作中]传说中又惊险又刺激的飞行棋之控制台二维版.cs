@@ -166,6 +166,11 @@ namespace LessonMai//传说中又惊险又刺激的飞行棋之控制台二维�
             {
                 FightMap();//场景印刷
                 PropMap(propsPlacement);//地图印刷
+                #region 印刷终点图标
+                printCoordinates = CoordinateSystemConversion(LevelData - 1);
+                Console.SetCursorPosition(printCoordinates[0], printCoordinates[1]);
+                WriteLineColorOnce("■", false);
+                #endregion
                 action++;//循环开始时，进行行动
                 action = action == 3 ? 1 : action;
                 if (action == 1)//行动为单数时，是玩家的行动。行动为双数时，是电脑的行动
@@ -275,7 +280,7 @@ namespace LessonMai//传说中又惊险又刺激的飞行棋之控制台二维�
                             WriteLineColorOnce("妙", false, ConsoleColor.DarkRed);
                             break;
                         case (int)E_PropsProps.占卜师:
-                            WriteLineColorOnce("卜", false, ConsoleColor.Magenta);
+                            WriteLineColorOnce("卜", false, ConsoleColor.Yellow);
                             break;
                         case (int)E_PropsProps.商店:
                             WriteLineColorOnce("商", false, ConsoleColor.Yellow);
@@ -424,6 +429,7 @@ namespace LessonMai//传说中又惊险又刺激的飞行棋之控制台二维�
         //—————— ฅ՞• •՞ฅ ——————华丽分割线—————— ฅ՞• •՞ฅ ——————华丽分割线—————— ฅ՞• •՞ฅ ——————华丽分割线
         static int FightMap(bool firstPrint)//重载，true即是初次打印战斗地图，会记录关卡的进度，关卡坐标系;不输入则不会记录，但是会更新游戏内容
         {
+            Console.ForegroundColor = ConsoleColor.DarkGray;
             int record = 0;
             int PrintingWidth = 0;
             int PrintingHeight = 2;
@@ -474,11 +480,13 @@ namespace LessonMai//传说中又惊险又刺激的飞行棋之控制台二维�
                 #endregion
             }
             int LevelData = record;//关卡的进度上限
+            Console.ForegroundColor = ConsoleColor.White;
             return LevelData;//关卡的进度上限
         }
         //—————— ฅ՞• •՞ฅ ——————华丽分割线—————— ฅ՞• •՞ฅ ——————华丽分割线—————— ฅ՞• •՞ฅ ——————华丽分割线
         static void FightMap()//重载，true即是初次打印战斗地图，会记录关卡的进度，关卡坐标系;不写则不会记录，但是会更新游戏内容
         {
+            Console.ForegroundColor = ConsoleColor.DarkGray;
             int PrintingWidth = 0;
             int PrintingHeight = 2;
             bool continuousPrinting = true;
@@ -523,6 +531,7 @@ namespace LessonMai//传说中又惊险又刺激的飞行棋之控制台二维�
                 Console.Write("□");
                 #endregion
             }
+            Console.ForegroundColor = ConsoleColor.White;
         }
         //—————— ฅ՞• •՞ฅ ——————华丽分割线—————— ฅ՞• •՞ฅ ——————华丽分割线—————— ฅ՞• •՞ฅ ——————华丽分割线
         static int[] CoordinateSystemConversion(int recordProgress)//输入关卡进度，输出显示坐标
@@ -601,7 +610,7 @@ namespace LessonMai//传说中又惊险又刺激的飞行棋之控制台二维�
             string[] PlayerRules =
                 {
                 "★表示人类阵营的星舰:",
-                "战机根据每点骰子移动两格",
+                "战机根据每点骰子移动一格",
                 "骰子点数为六时，发动空空导弹攻击前方",
                 "空空导弹：击落的敌人两回合将无法移动",
                 "俯冲轰炸：踩到击落状态敌人可直接获胜",
@@ -611,7 +620,7 @@ namespace LessonMai//传说中又惊险又刺激的飞行棋之控制台二维�
             string[] AiRules =
                 {
                 "●表示异星阵营的飞碟:",
-                "飞碟根据每点骰子移动两格",
+                "飞碟根据每点骰子移动一格",
                 "如果骰子点数为三以下，移动加一格",
                 "地球研究：踩到生物时，加一金币",
                 "隐身外形：百分之五十概率摆脱导弹",
@@ -658,10 +667,10 @@ namespace LessonMai//传说中又惊险又刺激的飞行棋之控制台二维�
             Console.SetCursorPosition(Windows.GetWindowsWidth() / 2, Windows.GetWindowsHeight() - (Windows.GetWindowsHeight() / 3) + 4);
             WriteLineColorOnce("妙", false, ConsoleColor.DarkRed);
             Console.SetCursorPosition(Windows.GetWindowsWidth() / 2, Windows.GetWindowsHeight() - (Windows.GetWindowsHeight() / 3) + 5);
-            WriteLineColorOnce("卜", false, ConsoleColor.Magenta);
-            Console.SetCursorPosition(Windows.GetWindowsWidth() / 2, Windows.GetWindowsHeight() - (Windows.GetWindowsHeight() / 3) + 4);
+            WriteLineColorOnce("卜", false, ConsoleColor.Yellow);
+            Console.SetCursorPosition(Windows.GetWindowsWidth() / 2, Windows.GetWindowsHeight() - (Windows.GetWindowsHeight() / 3) + 6);
             WriteLineColorOnce("商", false, ConsoleColor.Yellow);
-            Console.SetCursorPosition(Windows.GetWindowsWidth() / 2, Windows.GetWindowsHeight() - (Windows.GetWindowsHeight() / 3) + 5);
+            Console.SetCursorPosition(Windows.GetWindowsWidth() / 2, Windows.GetWindowsHeight() - (Windows.GetWindowsHeight() / 3) + 7);
             WriteLineColorOnce("掠", false, ConsoleColor.Red);
         }
         //—————— ฅ՞• •՞ฅ ——————华丽分割线—————— ฅ՞• •՞ฅ ——————华丽分割线—————— ฅ՞• •՞ฅ ——————华丽分割线
