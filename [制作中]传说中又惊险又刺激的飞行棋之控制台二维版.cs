@@ -17,13 +17,21 @@ namespace LessonMai//传说中又惊险又刺激的飞行棋之控制台二维�
         public string name;
         public int steps;
     }
-    public struct PropsProps//游戏道具枚举，可以在游戏主函数中，设置想要随机产生的场景道具数量
+    public struct PropsProps//游戏道具构造体，可以在游戏主函数中
     {
         public int[] 折跃门;
         public int[] 妙妙屋;
         public int[] 占卜师;
         public int[] 商店;
         public int[] 太空掠食者;
+    }
+    public enum E_PropsProps//游戏场景枚举
+    {
+        折跃门,
+        妙妙屋,
+        占卜师,
+        商店,
+        太空掠食者,
     }
     //—————— ฅ՞• •՞ฅ ——————华丽分割线—————— ฅ՞• •՞ฅ ——————华丽分割线—————— ฅ՞• •՞ฅ ——————华丽分割线
     enum E_GameScene//游戏场景枚举
@@ -93,7 +101,7 @@ namespace LessonMai//传说中又惊险又刺激的飞行棋之控制台二维�
         //—————— ฅ՞• •՞ฅ ——————华丽分割线—————— ฅ՞• •՞ฅ ——————华丽分割线—————— ฅ՞• •՞ฅ ——————华丽分割线
         static void Scene(ref E_GameScene e_GameScene)
         {
-            while(true)
+            while (true)
             {
                 switch (e_GameScene)
                 {
@@ -136,11 +144,11 @@ namespace LessonMai//传说中又惊险又刺激的飞行棋之控制台二维�
             //—————— ฅ՞• •՞ฅ ——————华丽分割线—————— ฅ՞• •՞ฅ ——————华丽分割线—————— ฅ՞• •՞ฅ ——————华丽分割线
             #region 声明场景道具，初始化它们的参数，枚举参数的数量代表着道具的数量
             PropsProps propsProps;
-            propsProps.折跃门 = new int[4];//折跃门
-            propsProps.妙妙屋 = new int[2];//妙妙屋
-            propsProps.占卜师 = new int[2];//占卜师
-            propsProps.商店 = new int[2];//商店
-            propsProps.太空掠食者 = new int[6];//太空掠食者
+            propsProps.折跃门 = new int[10];//折跃门**************************************************************************************
+            propsProps.妙妙屋 = new int[5];//妙妙屋**************************************************************************************
+            propsProps.占卜师 = new int[5];//占卜师**************************************************************************************
+            propsProps.商店 = new int[5];//商店******************************************************************************************
+            propsProps.太空掠食者 = new int[15];//太空掠食者********************************************************************************
             #endregion
             #region 将道具的坐标储存进propsPlacement，为他们编号
             int[][] propsPlacement = { propsProps.折跃门, propsProps.妙妙屋, propsProps.占卜师, propsProps.商店, propsProps.太空掠食者 };
@@ -149,10 +157,15 @@ namespace LessonMai//传说中又惊险又刺激的飞行棋之控制台二维�
             propsPlacement = PropsPlacement(LevelData, propsPlacement);//生成随机道具参数
             #endregion
             //—————— ฅ՞• •՞ฅ ——————华丽分割线—————— ฅ՞• •՞ฅ ——————华丽分割线—————— ฅ՞• •՞ฅ ——————华丽分割线
+            PropMap(propsPlacement);//地图印刷
+            //—————— ฅ՞• •՞ฅ ——————华丽分割线—————— ฅ՞• •՞ฅ ——————华丽分割线—————— ฅ՞• •՞ฅ ——————华丽分割线
             #region 投掷骰子并前进的逻辑
             Random random = new Random();
+            int[] printCoordinates;
             while (gameRuns)
             {
+                FightMap();//场景印刷
+                PropMap(propsPlacement);//地图印刷
                 action++;//循环开始时，进行行动
                 action = action == 3 ? 1 : action;
                 if (action == 1)//行动为单数时，是玩家的行动。行动为双数时，是电脑的行动
@@ -168,9 +181,10 @@ namespace LessonMai//传说中又惊险又刺激的飞行棋之控制台二维�
                     Manual = AlienStar.ai;
                 }
                 #region 存在优化空间的代码，应该有更好的印刷方式
-                int[] printCoordinates = CoordinateSystemConversion(Player.steps);
+                printCoordinates = CoordinateSystemConversion(Player.steps);
                 Console.SetCursorPosition(printCoordinates[0], printCoordinates[1]);
                 WriteLineColorOnce(Player.name, false);
+
                 printCoordinates = CoordinateSystemConversion(AlienStar.steps);
                 Console.SetCursorPosition(printCoordinates[0], printCoordinates[1]);
                 WriteLineColorOnce(AlienStar.name, false, ConsoleColor.DarkGreen);
@@ -178,7 +192,7 @@ namespace LessonMai//传说中又惊险又刺激的飞行棋之控制台二维�
                 {
                     printCoordinates = CoordinateSystemConversion(AlienStar.steps);
                     Console.SetCursorPosition(printCoordinates[0], printCoordinates[1]);
-                    WriteLineColorOnce("■", false,ConsoleColor.DarkBlue);
+                    WriteLineColorOnce("★", false, ConsoleColor.DarkGreen);
                 }
                 #endregion
                 if (firsTime)
@@ -215,20 +229,15 @@ namespace LessonMai//传说中又惊险又刺激的飞行棋之控制台二维�
                 Console.SetCursorPosition(Windows.GetWindowsWidth() - Windows.GetWindowsWidth() / 4, Windows.GetWindowsHeight() - (Windows.GetWindowsHeight() / 3) + 2);
                 Console.Write("本回合骰子的点数是:");
                 WriteLineColorOnce(steps.ToString(), false);
-
-                Progress = Progress + steps * 20;
+                Progress = Progress + steps * 2;
                 if (action == 1)//行动结束时，清除行动的记录。
                 {
-                    printCoordinates = CoordinateSystemConversion(Player.steps);
                     Player.steps = Progress;//结算的数值进行保存
                 }
                 else
                 {
-                    printCoordinates = CoordinateSystemConversion(AlienStar.steps);
                     AlienStar.steps = Progress;//结算的数值进行保存
                 }
-                Console.SetCursorPosition(printCoordinates[0], printCoordinates[1]);
-                Console.Write("□");
                 if (Progress >= LevelData)
                 {
                     gameRuns = false;
@@ -239,20 +248,56 @@ namespace LessonMai//传说中又惊险又刺激的飞行棋之控制台二维�
                     }
                     else
                     {
-                        WriteLineColorOnce("游戏结束！" + AlienStar.name + "胜利！",true,ConsoleColor.DarkGreen);
+                        WriteLineColorOnce("游戏结束！" + AlienStar.name + "胜利！", true, ConsoleColor.DarkGreen);
                     }
                     Thread.Sleep(10000);
                     Environment.Exit(0);//正常退出
-
                 }
             }
             #endregion
         }
         //—————— ฅ՞• •՞ฅ ——————华丽分割线—————— ฅ՞• •՞ฅ ——————华丽分割线—————— ฅ՞• •՞ฅ ——————华丽分割线
-        static int[][] PropsPlacement(int LevelData ,params int[][] propsIncoming)
+        static void PropMap(int[][] propsPlacement)
+        {
+            int[] printCoordinates;
+            for (int I = 0; I < propsPlacement.Length; I++)
+            {
+                for (int i = 0; i < propsPlacement[I].Length; i++)
+                {
+                    printCoordinates = CoordinateSystemConversion(propsPlacement[I][i]);
+                    Console.SetCursorPosition(printCoordinates[0], printCoordinates[1]);
+                    switch (I)
+                    {
+                        case (int)E_PropsProps.折跃门:
+                            WriteLineColorOnce("门", false, ConsoleColor.Blue);
+                            break;
+                        case (int)E_PropsProps.妙妙屋:
+                            WriteLineColorOnce("妙", false, ConsoleColor.DarkRed);
+                            break;
+                        case (int)E_PropsProps.占卜师:
+                            WriteLineColorOnce("卜", false, ConsoleColor.Magenta);
+                            break;
+                        case (int)E_PropsProps.商店:
+                            WriteLineColorOnce("商", false, ConsoleColor.Yellow);
+                            break;
+                        case (int)E_PropsProps.太空掠食者:
+                            WriteLineColorOnce("掠", false, ConsoleColor.Red);
+                            break;
+                    }
+                }
+            }
+        }
+        static int[][] PropsPlacement(int LevelData, params int[][] propsIncoming)
         {
             Random random = new Random();
-            return propsIncoming;
+            for (int I = 0; I < propsIncoming.Length; I++)
+            {
+                for (int i = 0; i < propsIncoming[I].Length; i++)
+                {
+                    propsIncoming[I][i] = random.Next(LevelData);
+                }
+            }
+            return propsIncoming;//生成随机地图
         }
         //—————— ฅ՞• •՞ฅ ——————华丽分割线—————— ฅ՞• •՞ฅ ——————华丽分割线—————— ฅ՞• •՞ฅ ——————华丽分割线
         #region 场景居中打印
@@ -377,7 +422,7 @@ namespace LessonMai//传说中又惊险又刺激的飞行棋之控制台二维�
             }
         }
         //—————— ฅ՞• •՞ฅ ——————华丽分割线—————— ฅ՞• •՞ฅ ——————华丽分割线—————— ฅ՞• •՞ฅ ——————华丽分割线
-        static int FightMap(bool firstPrint)//重载，true即是初次打印战斗地图，会记录关卡的进度，关卡坐标系;false不会记录，但是会更新游戏内容
+        static int FightMap(bool firstPrint)//重载，true即是初次打印战斗地图，会记录关卡的进度，关卡坐标系;不输入则不会记录，但是会更新游戏内容
         {
             int record = 0;
             int PrintingWidth = 0;
@@ -393,9 +438,9 @@ namespace LessonMai//传说中又惊险又刺激的飞行棋之控制台二维�
                 #endregion
                 ++PrintingHeight;
                 #region 打印顺行的逻辑
-                for (PrintingWidth = 6; PrintingWidth < Windows.GetWindowsWidth()-6; PrintingWidth++)
+                for (PrintingWidth = 6; PrintingWidth < Windows.GetWindowsWidth() - 6; PrintingWidth++)
                 {
-                    if (PrintingWidth%2 == 0)
+                    if (PrintingWidth % 2 == 0)
                     {
                         Console.SetCursorPosition(PrintingWidth, PrintingHeight);
                         Console.Write("□");
@@ -430,6 +475,54 @@ namespace LessonMai//传说中又惊险又刺激的飞行棋之控制台二维�
             }
             int LevelData = record;//关卡的进度上限
             return LevelData;//关卡的进度上限
+        }
+        //—————— ฅ՞• •՞ฅ ——————华丽分割线—————— ฅ՞• •՞ฅ ——————华丽分割线—————— ฅ՞• •՞ฅ ——————华丽分割线
+        static void FightMap()//重载，true即是初次打印战斗地图，会记录关卡的进度，关卡坐标系;不写则不会记录，但是会更新游戏内容
+        {
+            int PrintingWidth = 0;
+            int PrintingHeight = 2;
+            bool continuousPrinting = true;
+            while (continuousPrinting)
+            {
+                #region 是否达到印刷页面上限？
+                if (PrintingHeight > Windows.GetWindowsHeight() - (Windows.GetWindowsHeight() / 3) - 7)
+                {
+                    continuousPrinting = false;
+                }
+                #endregion
+                ++PrintingHeight;
+                #region 打印顺行的逻辑
+                for (PrintingWidth = 6; PrintingWidth < Windows.GetWindowsWidth() - 6; PrintingWidth++)
+                {
+                    if (PrintingWidth % 2 == 0)
+                    {
+                        Console.SetCursorPosition(PrintingWidth, PrintingHeight);
+                        Console.Write("□");
+                    }
+                }
+                #endregion
+                #region 打印右侧衔接
+                ++PrintingHeight;
+                Console.SetCursorPosition(PrintingWidth - 2, PrintingHeight);
+                Console.Write("□");
+                #endregion
+                ++PrintingHeight;
+                #region 打印逆行的逻辑
+                for (; PrintingWidth > 6; PrintingWidth--)
+                {
+                    if (PrintingWidth % 2 == 0)
+                    {
+                        Console.SetCursorPosition(PrintingWidth - 2, PrintingHeight);
+                        Console.Write("□");
+                    }
+                }
+                #endregion
+                #region 打印左侧衔接
+                ++PrintingHeight;
+                Console.SetCursorPosition(PrintingWidth, PrintingHeight);
+                Console.Write("□");
+                #endregion
+            }
         }
         //—————— ฅ՞• •՞ฅ ——————华丽分割线—————— ฅ՞• •՞ฅ ——————华丽分割线—————— ฅ՞• •՞ฅ ——————华丽分割线
         static int[] CoordinateSystemConversion(int recordProgress)//输入关卡进度，输出显示坐标
@@ -520,7 +613,7 @@ namespace LessonMai//传说中又惊险又刺激的飞行棋之控制台二维�
                 "●表示异星阵营的飞碟:",
                 "飞碟根据每点骰子移动两格",
                 "如果骰子点数为三以下，移动加一格",
-                "地球研究：踩到生物时，加一金币", 
+                "地球研究：踩到生物时，加一金币",
                 "隐身外形：百分之五十概率摆脱导弹",
                 "不稳定折跃：每回合随机前进或后退两格",
                 "☆表示人类阵营的基地，可踩毁基地",
@@ -528,12 +621,12 @@ namespace LessonMai//传说中又惊险又刺激的飞行棋之控制台二维�
             string[] interactiveProps =
                 {
                 "■表示双方位置重叠",
-                "□表示终点，先到达终点即可胜利",
-                "折跃门：踩到随机前进或后退六格",
-                "妙妙屋：被摔跤，后退两格",
-                "占卜师：随机获得一张卡牌",
-                "商店：可以购买卡牌",
-                "太空掠食者：需击败后才能通过"
+                "■表示终点，先到达终点即可胜利",
+                "折,折跃门：踩到随机前进或后退六格",
+                "妙,妙妙屋：被摔跤，后退两格",
+                "卜,占卜师：随机获得一张卡牌",
+                "商,商店：可以购买卡牌",
+                "掠,太空掠食者：需击败后才能通过"
                 };
             for (int i = 0; i < PlayerRules.Length; ++i)
             {
@@ -557,9 +650,19 @@ namespace LessonMai//传说中又惊险又刺激的飞行棋之控制台二维�
             Console.SetCursorPosition(Windows.GetWindowsWidth() / 4, Windows.GetWindowsHeight() - (Windows.GetWindowsHeight() / 3) + 1);
             WriteLineColorOnce("●", false, ConsoleColor.DarkGreen);
             Console.SetCursorPosition(Windows.GetWindowsWidth() / 2, Windows.GetWindowsHeight() - (Windows.GetWindowsHeight() / 3) + 1);
-            WriteLineColorOnce("■", false, ConsoleColor.DarkBlue);
+            WriteLineColorOnce("★", false, ConsoleColor.DarkGreen);
             Console.SetCursorPosition(Windows.GetWindowsWidth() / 2, Windows.GetWindowsHeight() - (Windows.GetWindowsHeight() / 3) + 2);
             WriteLineColorOnce("■", false);
+            Console.SetCursorPosition(Windows.GetWindowsWidth() / 2, Windows.GetWindowsHeight() - (Windows.GetWindowsHeight() / 3) + 3);
+            WriteLineColorOnce("门", false, ConsoleColor.Blue);
+            Console.SetCursorPosition(Windows.GetWindowsWidth() / 2, Windows.GetWindowsHeight() - (Windows.GetWindowsHeight() / 3) + 4);
+            WriteLineColorOnce("妙", false, ConsoleColor.DarkRed);
+            Console.SetCursorPosition(Windows.GetWindowsWidth() / 2, Windows.GetWindowsHeight() - (Windows.GetWindowsHeight() / 3) + 5);
+            WriteLineColorOnce("卜", false, ConsoleColor.Magenta);
+            Console.SetCursorPosition(Windows.GetWindowsWidth() / 2, Windows.GetWindowsHeight() - (Windows.GetWindowsHeight() / 3) + 4);
+            WriteLineColorOnce("商", false, ConsoleColor.Yellow);
+            Console.SetCursorPosition(Windows.GetWindowsWidth() / 2, Windows.GetWindowsHeight() - (Windows.GetWindowsHeight() / 3) + 5);
+            WriteLineColorOnce("掠", false, ConsoleColor.Red);
         }
         //—————— ฅ՞• •՞ฅ ——————华丽分割线—————— ฅ՞• •՞ฅ ——————华丽分割线—————— ฅ՞• •՞ฅ ——————华丽分割线
         static void PlotBroadcast()//开始的剧情播报，开发过程中为了不每次都看会跳过这个
