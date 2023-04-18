@@ -1,16 +1,19 @@
 using System;
 using System.Drawing;
 using System.Net.NetworkInformation;
+using System.Numerics;
 using System.Reflection;
 using System.Reflection.Emit;
+using System.Xml.Linq;
+using static System.Collections.Specialized.BitVector32;
 
 namespace LessonMai//传说中又惊险又刺激的飞行棋之控制台二维版
 {
-    struct GamePlayer//结构体，区分是玩家还是Ai、玩家名字、当前走过的部署
+    public struct GamePlayer//结构体，区分是玩家还是Ai、玩家名字、当前走过的部署
     {
-        bool ai;
-        string name;
-        int steps;
+        public bool ai;
+        public string name;
+        public int steps;
     }
     //—————— ฅ՞• •՞ฅ ——————华丽分割线—————— ฅ՞• •՞ฅ ——————华丽分割线—————— ฅ՞• •՞ฅ ——————华丽分割线
     enum E_GameScene//游戏场景枚举
@@ -101,16 +104,114 @@ namespace LessonMai//传说中又惊险又刺激的飞行棋之控制台二维�
             PrintingRules();
             int LevelData = FightMap(true);
             int Progress = 0;
+            int steps = 0;
+            bool firsTime = true;
+            bool Manual = false;
+            int action = 1;
+            string ActorName = "";
+            Random random = new Random();
+            GamePlayer Player;
+            Player.steps = 0;
+            Player.name = "★";
+            Player.ai = false;
+            GamePlayer AlienStar;
+            AlienStar.steps = 0;
+            AlienStar.name = "●";
+            AlienStar.ai = true;
+            #region 投掷骰子并前进的逻辑
             while (true)
             {
-                int[] printCoordinates = CoordinateSystemConversion(Progress);
+                action++;//循环开始时，进行行动
+                action = action == 3 ? 1 : action;
+                if (action == 1)//行动为单数时，是玩家的行动。行动为双数时，是电脑的行动
+                {
+                    ActorName = Player.name;
+                    Progress = Player.steps;
+                    Manual = Player.ai;
+                }
+                else
+                {
+                    ActorName = AlienStar.name;
+                    Progress = AlienStar.steps;
+                    Manual = AlienStar.ai;
+                }
+                #region 存在优化空间的代码，应该有更好的印刷方式
+                int[] printCoordinates = CoordinateSystemConversion(Player.steps);
                 Console.SetCursorPosition(printCoordinates[0], printCoordinates[1]);
-                WriteLineColorOnce("★", false);
-                Console.ReadLine();
+                WriteLineColorOnce(Player.name, false);
+                printCoordinates = CoordinateSystemConversion(AlienStar.steps);
+                Console.SetCursorPosition(printCoordinates[0], printCoordinates[1]);
+                WriteLineColorOnce(AlienStar.name, false, ConsoleColor.DarkGreen);
+                if (Player.steps == AlienStar.steps)
+                {
+                    printCoordinates = CoordinateSystemConversion(AlienStar.steps);
+                    Console.SetCursorPosition(printCoordinates[0], printCoordinates[1]);
+                    WriteLineColorOnce("■", false,ConsoleColor.DarkBlue);
+                }
+                #endregion
+                if (firsTime)
+                {
+                    Console.SetCursorPosition(Windows.GetWindowsWidth() - Windows.GetWindowsWidth() / 4, Windows.GetWindowsHeight() - (Windows.GetWindowsHeight() / 3) + 2);
+                    Console.Write("按下回车键开始丢骰子");
+                    firsTime = false;
+                }
+                else
+                {
+                    if (!Manual)
+                    {
+                        Console.SetCursorPosition(Windows.GetWindowsWidth() - Windows.GetWindowsWidth() / 4, Windows.GetWindowsHeight() - (Windows.GetWindowsHeight() / 3) + 3);
+                        Console.Write("按下回车键开始丢骰子");
+                    }
+                    else
+                    {
+                        Thread.Sleep(1000);
+                        Console.SetCursorPosition(Windows.GetWindowsWidth() - Windows.GetWindowsWidth() / 4, Windows.GetWindowsHeight() - (Windows.GetWindowsHeight() / 3) + 3);
+                        Console.Write("敌人的回合等待丢骰子");
+                    }
+                }
+                if (!Manual)
+                {
+                    Console.ReadLine();
+                }
+                for (int i = 0; i < 10; i++)
+                {
+                    steps = random.Next(1, 7);
+                    Thread.Sleep(100);
+                    Console.SetCursorPosition(Windows.GetWindowsWidth() - Windows.GetWindowsWidth() / 4, Windows.GetWindowsHeight() - (Windows.GetWindowsHeight() / 3) + 2);
+                    Console.Write("本回合骰子的点数是:{0}", steps);
+                }
+                Console.SetCursorPosition(Windows.GetWindowsWidth() - Windows.GetWindowsWidth() / 4, Windows.GetWindowsHeight() - (Windows.GetWindowsHeight() / 3) + 2);
+                Console.Write("本回合骰子的点数是:");
+                WriteLineColorOnce(steps.ToString(), false);
+
+                Progress = Progress + steps * 2;
+                if (action == 1)//行动结束时，清除行动的记录。
+                {
+                    printCoordinates = CoordinateSystemConversion(Player.steps);
+                    Player.steps = Progress;//结算的数值进行保存
+                }
+                else
+                {
+                    printCoordinates = CoordinateSystemConversion(AlienStar.steps);
+                    AlienStar.steps = Progress;//结算的数值进行保存
+                }
                 Console.SetCursorPosition(printCoordinates[0], printCoordinates[1]);
                 Console.Write("□");
-                ++Progress;
+                if (Progress >= LevelData)
+                {
+                    Console.Clear();
+                    if (Player.steps >= Progress)
+                    {
+                        WriteLineColorOnce("游戏结束！" + Player.name + "胜利！");
+                    }
+                    else
+                    {
+                        WriteLineColorOnce("游戏结束！" + AlienStar.name + "胜利！");
+                    }
+                    break;
+                }
             }
+            #endregion
         }
 
         //—————— ฅ՞• •՞ฅ ——————华丽分割线—————— ฅ՞• •՞ฅ ——————华丽分割线—————— ฅ՞• •՞ฅ ——————华丽分割线
@@ -398,13 +499,23 @@ namespace LessonMai//传说中又惊险又刺激的飞行棋之控制台二维�
                 "补给：立刻多骰一次骰子",
                 };
             string[] AiRules =
-{
+                {
                 "●表示异星阵营的飞碟:",
                 "飞碟会根据骰子点数移动",
                 "如果骰子点数为三以下，移动加一",
                 "隐身外形-百分之五十概率摆脱导弹",
                 "☆表示人类阵营的基地，可踩毁基地",
                 "不稳定折跃：每回合随机前进或后退两格",
+                };
+            string[] interactiveProps =
+                {
+                "■表示双方位置重叠",
+                "□表示终点，先到达终点即可胜利",
+                "折跃门：踩到随机前进或后退六格",
+                "妙妙屋：被摔跤，后退两格",
+                "占卜师：随机获得一张卡牌",
+                "商店：可以购买卡牌",
+                "太空掠食者：需击败后才能通过"
                 };
             for (int i = 0; i < PlayerRules.Length; ++i)
             {
@@ -418,6 +529,19 @@ namespace LessonMai//传说中又惊险又刺激的飞行棋之控制台二维�
                 //2是因为字符占两格，加1是避免覆盖到了划分格子的方块，加i是每次+1行打印
                 Console.Write(AiRules[i]);
             }
+            for (int i = 0; i < interactiveProps.Length; ++i)
+            {
+                Console.SetCursorPosition(Windows.GetWindowsWidth() / 2, Windows.GetWindowsHeight() - (Windows.GetWindowsHeight() / 3) + 1 + i);
+                Console.Write(interactiveProps[i]);
+            }
+            Console.SetCursorPosition(2, Windows.GetWindowsHeight() - (Windows.GetWindowsHeight() / 3) + 1);
+            WriteLineColorOnce("★", false);
+            Console.SetCursorPosition(Windows.GetWindowsWidth() / 4, Windows.GetWindowsHeight() - (Windows.GetWindowsHeight() / 3) + 1);
+            WriteLineColorOnce("●", false, ConsoleColor.DarkGreen);
+            Console.SetCursorPosition(Windows.GetWindowsWidth() / 2, Windows.GetWindowsHeight() - (Windows.GetWindowsHeight() / 3) + 1);
+            WriteLineColorOnce("■", false, ConsoleColor.DarkBlue);
+            Console.SetCursorPosition(Windows.GetWindowsWidth() / 2, Windows.GetWindowsHeight() - (Windows.GetWindowsHeight() / 3) + 2);
+            WriteLineColorOnce("■", false);
         }
         //—————— ฅ՞• •՞ฅ ——————华丽分割线—————— ฅ՞• •՞ฅ ——————华丽分割线—————— ฅ՞• •՞ฅ ——————华丽分割线
     }
