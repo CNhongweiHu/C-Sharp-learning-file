@@ -18,6 +18,7 @@ namespace LessonMai//传说中又惊险又刺激的飞行棋之控制台二维�
         public bool ai;
         public string name;
         public int steps;
+        public int gold;
     }
     public struct PropsProps//游戏道具构造体，可以在游戏主函数中
     {
@@ -131,6 +132,7 @@ namespace LessonMai//传说中又惊险又刺激的飞行棋之控制台二维�
             int action = 1;
             string ActorName = "";
             bool gameRuns = true;
+            int gold = 0;
             #endregion
             //—————— ฅ՞• •՞ฅ ——————华丽分割线—————— ฅ՞• •՞ฅ ——————华丽分割线—————— ฅ՞• •՞ฅ ——————华丽分割线
             #region 声明玩家和电脑的结构体
@@ -138,19 +140,21 @@ namespace LessonMai//传说中又惊险又刺激的飞行棋之控制台二维�
             Player.steps = 0;
             Player.name = "★";
             Player.ai = false;
+            Player.gold = 3;//开局有3金币
             GamePlayer AlienStar;
             AlienStar.steps = 0;
             AlienStar.name = "●";
             AlienStar.ai = true;
+            AlienStar.gold = 3;//开局有3金币
             #endregion
             //—————— ฅ՞• •՞ฅ ——————华丽分割线—————— ฅ՞• •՞ฅ ——————华丽分割线—————— ฅ՞• •՞ฅ ——————华丽分割线
             #region 声明场景道具，初始化它们的参数，枚举参数的数量代表着道具的数量
             PropsProps propsProps;
             propsProps.折跃门 = new int[LevelData / 30];//折跃门**************************************************************************************
-            propsProps.陨石 = new int[LevelData / 10];//陨石**************************************************************************************
-            propsProps.占卜师 = new int[LevelData / 100];//占卜师**************************************************************************************
-            propsProps.商店 = new int[LevelData / 80];//商店******************************************************************************************
-            propsProps.太空掠食者 = new int[LevelData / 60];//太空掠食者********************************************************************************
+            propsProps.陨石 = new int[LevelData / 6];//陨石**************************************************************************************
+            propsProps.占卜师 = new int[LevelData / 120];//占卜师**************************************************************************************
+            propsProps.商店 = new int[LevelData / 60];//商店******************************************************************************************
+            propsProps.太空掠食者 = new int[LevelData / 24];//太空掠食者********************************************************************************
             #endregion
             #region 将道具的坐标储存进propsPlacement，为他们编号
             int[][] propsPlacement = { propsProps.折跃门, propsProps.陨石, propsProps.占卜师, propsProps.商店, propsProps.太空掠食者 };
@@ -173,6 +177,18 @@ namespace LessonMai//传说中又惊险又刺激的飞行棋之控制台二维�
                 Console.SetCursorPosition(printCoordinates[0], printCoordinates[1]);
                 WriteLineColorOnce("■", false);
                 #endregion
+                #region 开始游戏前打印金币数量和其他提示
+                Console.SetCursorPosition(Windows.GetWindowsWidth() - Windows.GetWindowsWidth() / 4, Windows.GetWindowsHeight() - (Windows.GetWindowsHeight() / 3) + 6);
+                Console.Write("人类阵营的金币数量是：");
+                WriteLineColorOnce(Player.gold.ToString(),false,ConsoleColor.DarkYellow);
+                Console.SetCursorPosition(Windows.GetWindowsWidth() - Windows.GetWindowsWidth() / 4, Windows.GetWindowsHeight() - (Windows.GetWindowsHeight() / 3) + 7);
+                Console.Write("异星阵营当前的金币数量是：");
+                WriteLineColorOnce(AlienStar.gold.ToString(), false, ConsoleColor.DarkYellow);
+                Console.SetCursorPosition(Windows.GetWindowsWidth() - Windows.GetWindowsWidth() / 4, Windows.GetWindowsHeight() - (Windows.GetWindowsHeight() / 3) + 4);
+                Console.Write("？表示对应玩家和道具产生交互的起点");
+                Console.SetCursorPosition(Windows.GetWindowsWidth() - Windows.GetWindowsWidth() / 4, Windows.GetWindowsHeight() - (Windows.GetWindowsHeight() / 3) + 5);
+                Console.Write("！表示对应玩家和道具产生交互的终点");
+                #endregion
                 action++;//循环开始时，进行行动
                 action = action == 3 ? 1 : action;
                 if (action == 1)//行动为单数时，是玩家的行动。行动为双数时，是电脑的行动
@@ -180,12 +196,14 @@ namespace LessonMai//传说中又惊险又刺激的飞行棋之控制台二维�
                     ActorName = Player.name;
                     Progress = Player.steps;
                     Manual = Player.ai;
+                    gold = Player.gold;
                 }
                 else
                 {
                     ActorName = AlienStar.name;
                     Progress = AlienStar.steps;
                     Manual = AlienStar.ai;
+                    gold = Player.gold;
                 }
                 #region 存在优化空间的代码，应该有更好的印刷方式
                 printCoordinates = CoordinateSystemConversion(Player.steps);
@@ -239,17 +257,21 @@ namespace LessonMai//传说中又惊险又刺激的飞行棋之控制台二维�
 
                 Progress = Progress + steps;//行动结束，所在位置
                 #region 行动结束后，进入结算流程
-                Progress = GameSettlement(action, Progress, propsPlacement);
+                int[] gameSettlement = new int[2];
+                gameSettlement = GameSettlement(action, Progress, gold, propsPlacement);
+                Progress = gameSettlement[0];
+                gold = gameSettlement[1];
                 #endregion
                 if (action == 1)//结算结束时，结算的数值进行保存
                 {
+                    Player.gold = gold;
                     Player.steps = Progress;
                 }
                 else
                 {
+                    AlienStar.gold = gold;
                     AlienStar.steps = Progress;
                 }
-
                 if (Progress >= LevelData)
                 {
                     gameRuns = false;
@@ -269,12 +291,8 @@ namespace LessonMai//传说中又惊险又刺激的飞行棋之控制台二维�
             #endregion
         }
         //—————— ฅ՞• •՞ฅ ——————华丽分割线—————— ฅ՞• •՞ฅ ——————华丽分割线—————— ฅ՞• •՞ฅ ——————华丽分割线
-        static int GameSettlement(int action,int Progress, int[][]propsPlacement)//将玩家数据和场景道具数据导入结算页
+        static int[] GameSettlement(int action, int Progress, int gold, int[][] propsPlacement)//将玩家数据和场景道具数据导入结算页
         {
-            Console.SetCursorPosition(Windows.GetWindowsWidth() - Windows.GetWindowsWidth() / 4, Windows.GetWindowsHeight() - (Windows.GetWindowsHeight() / 3) + 4);
-            Console.Write("？表示对应玩家和道具产生交互的起点");
-            Console.SetCursorPosition(Windows.GetWindowsWidth() - Windows.GetWindowsWidth() / 4, Windows.GetWindowsHeight() - (Windows.GetWindowsHeight() / 3) + 5);
-            Console.Write("！表示对应玩家和道具产生交互的终点");
             if (action == 1)
             {
                 Console.ForegroundColor = ConsoleColor.Red;
@@ -307,7 +325,7 @@ namespace LessonMai//传说中又惊险又刺激的飞行棋之控制台二维�
                         printCoordinates = CoordinateSystemConversion(Progress);
                         Console.SetCursorPosition(printCoordinates[0], printCoordinates[1] + 1);
                         Console.Write("？");
-                        int Fold = random.Next(0,21);
+                        int Fold = random.Next(0, 21);
                         Progress = Progress - 10 + Fold;
                         printCoordinates = CoordinateSystemConversion(Progress);
                         Console.SetCursorPosition(printCoordinates[0], printCoordinates[1] + 1);
@@ -327,16 +345,50 @@ namespace LessonMai//传说中又惊险又刺激的飞行棋之控制台二维�
                         printCoordinates = CoordinateSystemConversion(Progress);
                         Console.SetCursorPosition(printCoordinates[0], printCoordinates[1] + 1);
                         Console.Write("？");
+                        int[] divination = Divination(Progress);
+                        Progress = divination[0];
+                        string divinationWrite = "占卜失败";
+                        switch (divination[1])
+                        {
+                            case 1://!占卜结果为：VII战车-正位
+                                divinationWrite = "!占卜结果为：VII战车-正位";
+                                break;
+                            case 2://!占卜结果为：VII战车-逆位
+                                divinationWrite = "!占卜结果为：VII战车-逆位";
+                                break;
+                            case 3://!占卜结果为：X命运之轮-正位
+                                divinationWrite = "!占卜结果为：X命运之轮-正位";
+                                break;
+                            case 4://!占卜结果为：X命运之轮-逆位
+                                divinationWrite = "!占卜结果为：X命运之轮-逆位";
+                                break;
+                            case 5://!占卜结果为：XV恶魔-正位
+                                divinationWrite = "!占卜结果为：XV恶魔-正位";
+                                break;
+                            case 6://!占卜结果为：XV恶魔-逆位
+                                divinationWrite = "!占卜结果为：XV恶魔-逆位";
+                                break;
+                            case 7://!占卜结果为：XXI世界-正位
+                                divinationWrite = "!占卜结果为：XXI世界-正位";
+                                break;
+                            case 8://!占卜结果为：XXI世界-逆位
+                                divinationWrite = "!占卜结果为：XXI世界-逆位";
+                                break;
+                        }
                         printCoordinates = CoordinateSystemConversion(Progress);
-                        Console.SetCursorPosition(printCoordinates[0], printCoordinates[1] + 1);
-                        Console.Write("!卜");
+                        Console.SetCursorPosition(printCoordinates[0], printCoordinates[1] - 1);
+                        Console.Write(divinationWrite);
                         //随机神秘效果
                         break;
                     case (int)E_PropsProps.商店:
+                        int[] shop;
                         printCoordinates = CoordinateSystemConversion(Progress);
                         printCoordinates = CoordinateSystemConversion(Progress);
                         Console.SetCursorPosition(printCoordinates[0], printCoordinates[1] + 1);
                         Console.Write("？");
+                        shop = Shop(gold, Progress);
+                        Progress = shop[0];
+                        gold = shop[1];
                         printCoordinates = CoordinateSystemConversion(Progress);
                         printCoordinates = CoordinateSystemConversion(Progress);
                         Console.SetCursorPosition(printCoordinates[0], printCoordinates[1] + 1);
@@ -347,6 +399,7 @@ namespace LessonMai//传说中又惊险又刺激的飞行棋之控制台二维�
                         printCoordinates = CoordinateSystemConversion(Progress);
                         Console.SetCursorPosition(printCoordinates[0], printCoordinates[1] + 1);
                         Console.Write("？");
+                        gold = ++gold;
                         printCoordinates = CoordinateSystemConversion(Progress);
                         Console.SetCursorPosition(printCoordinates[0], printCoordinates[1] + 1);
                         Console.Write("!赏");
@@ -355,7 +408,54 @@ namespace LessonMai//传说中又惊险又刺激的飞行棋之控制台二维�
                 }
             }
             Console.ForegroundColor = ConsoleColor.White;
-            return Progress;
+            Progress = Progress < 0 ? 0 : Progress;//数值校验，避免低于最低格
+            int[] gameSettlement = new int[2];
+            gameSettlement[0] = Progress;
+            gameSettlement[1] = gold;
+            return gameSettlement;
+        }
+        //—————— ฅ՞• •՞ฅ ——————华丽分割线—————— ฅ՞• •՞ฅ ——————华丽分割线—————— ฅ՞• •՞ฅ ——————华丽分割线
+        static int[] Shop(int gold,int purchaseEffect)
+        {
+            int[] shop = new int[2];
+            return shop;
+        }
+        //—————— ฅ՞• •՞ฅ ——————华丽分割线—————— ฅ՞• •՞ฅ ——————华丽分割线—————— ฅ՞• •՞ฅ ——————华丽分割线
+        static int[] Divination(int Progress)
+        {
+            int[] divination = new int[2];
+            Random random = new Random();
+            int divinationResult = random.Next(1, 7);
+            switch (divinationResult)
+            {
+                case 1://!占卜结果为：VII战车-正位
+                    Progress = Progress + 7;
+                    break;
+                case 2://!占卜结果为：VII战车-逆位
+                    Progress = Progress - 7;
+                    break;
+                case 3://!占卜结果为：X命运之轮-正位
+                    Progress = Progress + random.Next(1, 11);
+                    break;
+                case 4://!占卜结果为：X命运之轮-逆位
+                    Progress = Progress - random.Next(1, 11);
+                    break;
+                case 5://!占卜结果为：XV恶魔-正位
+                    Progress = Progress - 15;
+                    break;
+                case 6://!占卜结果为：XV恶魔-逆位
+                    Progress = Progress + 15;
+                    break;
+                case 7://!占卜结果为：XXI世界-正位
+                    Progress = Progress % 3 == 0 ? Progress * 2 : Progress;
+                    break;
+                case 8://!占卜结果为：XXI世界-逆位
+                    Progress = Progress % 3 == 0 ? Progress / 2 : Progress;
+                    break;
+            }
+            divination[0] = Progress;
+            divination[1] = divinationResult;
+            return divination;
         }
         //—————— ฅ՞• •՞ฅ ——————华丽分割线—————— ฅ՞• •՞ฅ ——————华丽分割线—————— ฅ՞• •՞ฅ ——————华丽分割线
         static void PropMap(int[][] propsPlacement)
@@ -730,8 +830,8 @@ namespace LessonMai//传说中又惊险又刺激的飞行棋之控制台二维�
                 "折-闪|折跃门：踩到随机前往前后十格内",
                 "陨-撞|陨石：踩到后退一格，不会连撞",
                 "占-卜|占卜师：随机获得强力神秘效果",
-                "商-买|商店：扣除三赏金，随机获得神秘效果",
-                "掠-赏|太空掠食者：踩到即击败，获得一赏金",
+                "商-买|商店：扣除三赏金随机获得神秘效果",
+                "掠-赏|太空掠食者：踩到即击败获得一赏金",
                 };
             for (int i = 0; i < PlayerRules.Length; ++i)
             {
