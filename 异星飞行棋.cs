@@ -97,7 +97,7 @@ namespace LessonMai//传说中又惊险又刺激的飞行棋之控制台二维�
             int Height = GetWindowsHeight();
             int Width = GetWindowsWidth();
             Console.SetWindowSize(Width, Height);
-            Console.SetBufferSize(Width, Height);
+            Console.SetBufferSize((int)(Width*1.2f), (int)(Height*1.2f));//将缓冲区设置的比窗口更大一些避免exe出错
         }
     }
     //—————— ฅ՞• •՞ฅ ——————华丽分割线—————— ฅ՞• •՞ฅ ——————华丽分割线—————— ฅ՞• •՞ฅ ——————华丽分割线
